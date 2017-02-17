@@ -1,0 +1,20 @@
+{
+    "require": {
+        "gridonic/hapi": "^0.1.0",
+        "symfony/console": "^3.2",
+        "nesbot/carbon": "^1.22",
+        "league/csv": "^8.2",
+        "symfony/yaml": "^3.2",
+        "symfony/config": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fruitage\\": "src/Fruitage/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}
