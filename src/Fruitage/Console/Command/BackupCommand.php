@@ -121,10 +121,9 @@ class BackupCommand extends Command {
             $io->progressAdvance();
         }
         $io->progressFinish();
-        $csv = Writer::createFromFileObject(new SplTempFileObject());
+        $csv = Writer::createFromPath($output_file, 'w');
         $csv->insertOne(['Date', 'Client', 'Project', 'Task', 'Notes', 'Hours', 'First name', 'Last name']);
         $csv->insertAll($time_entries);
-        $csv->output($output_file);
         return 0;
         // Write all time entries to CSV.
     }
