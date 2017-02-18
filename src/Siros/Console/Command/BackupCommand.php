@@ -1,8 +1,8 @@
 <?php
 
-namespace Fruitage\Console\Command;
+namespace Siros\Console\Command;
 
-use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,8 +11,10 @@ use Symfony\Component\Console\Command\Command;
 use Harvest\HarvestAPI;
 use Harvest\Model\Range;
 use Carbon\Carbon;
-use League\Csv\Writer;
-use SplTempFileObject;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class BackupCommand extends Command {
 
@@ -36,8 +38,9 @@ class BackupCommand extends Command {
         $this->setName('backup')
             ->setDefinition([
                 new InputArgument('file',
-                    InputArgument::REQUIRED,
-                    'Output file to write to.')
+                    InputArgument::OPTIONAL,
+                    'Output file to write to.',
+                    'data.csv')
 
             ])
             ->setDescription('Backup time entries from Harvest to a CSV.');
@@ -51,15 +54,9 @@ class BackupCommand extends Command {
             $this->projectMap[$project->get('id')] = $project->get('name');
             $client_id = $project->get('client-id');
             if (!isset($this->projectToClientMap[$project->get('id')])) {
-//                $this->clientMap[$client_id] = $clients[$client_id]->get('name');
                 $this->projectToClientMap[$project->get('id')] = $clients[$client_id]->get('name');
             }
         }
-    }
-
-    protected function populateClientMap()
-    {
-        $clients = $this->harvestClient->getClients()->get('data');
     }
 
     protected function setHarvestClient()
@@ -94,12 +91,15 @@ class BackupCommand extends Command {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->setHarvestClient();
+
+        $fs = new Filesystem();
+        $fs->touch($input->getArgument('file'));
+
         $io = new SymfonyStyle($input, $output);
         $io->title('Backing up Harvest entries to CSV');
-        $output_file = getenv('HARVEST_CSV_OUTPUT_FILE');
 
         $to = Carbon::create()->format('Ymd');
-        // From data is an arbitrary very old date.
+        // From data is an arbitrary old date.
         $range = new Range('20100101', $to);
         $io->note('Populating project map.');
         $this->populateProjectMap();
@@ -121,11 +121,12 @@ class BackupCommand extends Command {
             $io->progressAdvance();
         }
         $io->progressFinish();
-        $csv = Writer::createFromPath($output_file, 'w');
-        $csv->insertOne(['Date', 'Client', 'Project', 'Task', 'Notes', 'Hours', 'First name', 'Last name']);
-        $csv->insertAll($time_entries);
+        $serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder()]);
+        $headers = ['Date', 'Client', 'Project', 'Task', 'Notes', 'Hours', 'First name', 'Last name'];
+        $data = array_merge($time_entries, $headers);
+        $fs->dumpFile($input->getArgument('file'), $serializer->encode($data, 'csv'));
+
         return 0;
-        // Write all time entries to CSV.
     }
 
     protected function formatEntry($entry)

@@ -3,7 +3,7 @@
 require __DIR__.'/vendor/autoload.php';
 
 use Symfony\Component\Console\Application;
-use Fruitage\Console\Command\BackupCommand;
+use Siros\Console\Command\BackupCommand;
 
 $application = new Application();
 $application->add(new BackupCommand());
