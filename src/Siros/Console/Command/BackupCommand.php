@@ -110,7 +110,6 @@ class BackupCommand extends Command {
         $project_ids = array_keys($this->projectMap);
         $io->progressStart(count($project_ids));
         $time_entries = [];
-        $headers = [['Date', 'Client', 'Project', 'Task', 'Notes', 'Hours', 'First name', 'Last name']];
         // Get all Harvest projects.
         foreach ($project_ids as $id) {
             // Get all time entries for each project.
@@ -123,8 +122,7 @@ class BackupCommand extends Command {
         }
         $io->progressFinish();
         $serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder()]);
-        $data = array_merge($time_entries, $headers);
-        $fs->dumpFile($input->getArgument('file'), $serializer->encode($data, 'csv'));
+        $fs->dumpFile($input->getArgument('file'), $serializer->encode($time_entries, 'csv'));
 
         return 0;
     }
@@ -132,16 +130,16 @@ class BackupCommand extends Command {
     protected function formatEntry($entry)
     {
             return [
-                'date' => $entry->get('spent-at'),
-                'client' => $this->projectToClientMap[$entry->get('project-id')],
-                'project' => $this->projectMap[$entry->get('project-id')],
-                'task' => $this->taskMap[$entry->get('task-id')],
-                'notes' => $entry->get('notes'),
-                'hours' => $entry->get('hours'),
-                'first_name' => $this->userMap[$entry->get('user-id')]['first_name'],
-                'last_name' => $this->userMap[$entry->get('user-id')]['last_name'],
-                'created_on' => $entry->get('created-at'),
-                'updated_on' => $entry->get('updated-at'),
+                'Date' => $entry->get('spent-at'),
+                'Client' => $this->projectToClientMap[$entry->get('project-id')],
+                'Project' => $this->projectMap[$entry->get('project-id')],
+                'Task' => $this->taskMap[$entry->get('task-id')],
+                'Notes' => $entry->get('notes'),
+                'Hours' => $entry->get('hours'),
+                'First name' => $this->userMap[$entry->get('user-id')]['first_name'],
+                'Last name' => $this->userMap[$entry->get('user-id')]['last_name'],
+                'Created on' => $entry->get('created-at'),
+                'Updated on' => $entry->get('updated-at'),
             ];
     }
 
