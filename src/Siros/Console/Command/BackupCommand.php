@@ -110,6 +110,7 @@ class BackupCommand extends Command {
         $project_ids = array_keys($this->projectMap);
         $io->progressStart(count($project_ids));
         $time_entries = [];
+        $headers = [['Date', 'Client', 'Project', 'Task', 'Notes', 'Hours', 'First name', 'Last name']];
         // Get all Harvest projects.
         foreach ($project_ids as $id) {
             // Get all time entries for each project.
@@ -122,7 +123,6 @@ class BackupCommand extends Command {
         }
         $io->progressFinish();
         $serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder()]);
-        $headers = ['Date', 'Client', 'Project', 'Task', 'Notes', 'Hours', 'First name', 'Last name'];
         $data = array_merge($time_entries, $headers);
         $fs->dumpFile($input->getArgument('file'), $serializer->encode($data, 'csv'));
 
