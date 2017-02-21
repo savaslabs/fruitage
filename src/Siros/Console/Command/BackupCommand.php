@@ -162,14 +162,9 @@ class BackupCommand extends Command {
             $io->progressAdvance();
         }
         $io->progressFinish();
-        // Sort by date.
+        // Sort by Harvest ID.
         usort($time_entries, function ($a, $b) {
-            $date_a = Carbon::parse($a['Date']);
-            $date_b = Carbon::parse($b['Date']);
-            if ($date_a->eq($date_b)) {
-                return 0;
-            }
-            return ($date_a->lessThan($date_b)) ? -1 : 1;
+            return ($a['Harvest ID'] < $b['Harvest ID']) ? -1 : 1;
         });
 
         // Save the CSV.
@@ -199,6 +194,7 @@ class BackupCommand extends Command {
                 'Last name' => $this->userMap[$entry->get('user-id')]['last_name'],
                 'Created on' => $entry->get('created-at'),
                 'Updated on' => $entry->get('updated-at'),
+                'Harvest ID' => $entry->get('id'),
             ];
     }
 
