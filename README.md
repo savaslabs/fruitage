@@ -12,7 +12,7 @@ Set the following environment variables:
 
 ## Usage
 
-`docker run --rm -it -v $(pwd):/app --env-file=.env savaslabs/siros backup {filename}`
+`docker run --rm -it -v $(pwd):/data --env-file=.env savaslabs/siros backup /data/{filename}`
 
 Or:
 
