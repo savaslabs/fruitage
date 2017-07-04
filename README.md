@@ -20,4 +20,5 @@ Or:
 
 If you run without an argument, the CSV will be called `data.csv`.
 
-The exported entries will be in slightly different order than what is provided by Harvest when you click "Export all data", because we sort time entries based on the "spent at" field, which is only granular to a particular day, whereas Harvest likely sorts their time entries by second or minute (or possibly the "created at" field).
+The exported entries will be in slightly different order than what is provided by Harvest when you click "Export all data", because we sort time entries based on the "spent at" field, which is only granular to a particular day, whereas Harvest likely sorts their time entries by second or minute (or possibly the "created at" field). Some manipulation of fields will be required in the very unlikely event we have to re-import into Harvest.
+

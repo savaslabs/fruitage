@@ -57,7 +57,10 @@ class BackupCommand extends Command {
         $clients = $this->harvestClient->getClients()->get('data');
         /** @var \Harvest\Model\Result $project */
         foreach ($projects as $project) {
-            $this->projectMap[$project->get('id')] = $project->get('name');
+            $this->projectMap[$project->get('id')] = array(
+              'name' => $project->get('name'),
+              'hourly-rate' => $project->get('hourly-rate'),
+            );
             $client_id = $project->get('client-id');
             if (!isset($this->projectToClientMap[$project->get('id')])) {
                 $this->projectToClientMap[$project->get('id')] = $clients[$client_id]->get('name');
@@ -186,15 +189,19 @@ class BackupCommand extends Command {
             return [
                 'Date' => $entry->get('spent-at'),
                 'Client' => $this->projectToClientMap[$entry->get('project-id')],
-                'Project' => $this->projectMap[$entry->get('project-id')],
+                'Project' => $this->projectMap[$entry->get('project-id')]['name'],
                 'Task' => $this->taskMap[$entry->get('task-id')],
                 'Notes' => $entry->get('notes'),
                 'Hours' => $entry->get('hours'),
+                'Hours rounded' => ceil($entry->get('hours') * 4) / 4,
                 'First name' => $this->userMap[$entry->get('user-id')]['first_name'],
                 'Last name' => $this->userMap[$entry->get('user-id')]['last_name'],
                 'Created on' => $entry->get('created-at'),
                 'Updated on' => $entry->get('updated-at'),
                 'Harvest ID' => $entry->get('id'),
+                'Project ID' => $entry->get('project-id'),
+                'User ID' => $entry->get('user-id'),
+                'Project hourly rate' => $this->projectMap[$entry->get('project-id')]['hourly-rate'],
             ];
     }
 
