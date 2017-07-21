@@ -60,6 +60,7 @@ class BackupCommand extends Command {
             $this->projectMap[$project->get('id')] = array(
               'name' => $project->get('name'),
               'hourly-rate' => $project->get('hourly-rate'),
+              'client-id' => $project->get('client-id'),
             );
             $client_id = $project->get('client-id');
             if (!isset($this->projectToClientMap[$project->get('id')])) {
