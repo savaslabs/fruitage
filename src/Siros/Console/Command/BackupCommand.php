@@ -109,6 +109,38 @@ class BackupCommand extends Command {
         }
     }
 
+  /**
+   * Get an entry of time entries for a range.
+   *
+   * @param \Symfony\Component\Console\Style\SymfonyStyle $symfonyStyle
+   *   The SymfonyStyle component.
+   * @param array $project_ids
+   *  The project IDs to get data for.
+   * @param \Harvest\Model\Range $range
+   *   The date range.
+   *
+   * @return array
+   *   An array of time entries.
+   */
+    protected function retrieveDataForProjects(SymfonyStyle $symfonyStyle, array $project_ids, Range $range)
+    {
+        $symfonyStyle->section(sprintf('Retrieving data for %d projects', count($project_ids)));
+        $symfonyStyle->progressStart(count($project_ids));
+        $timeEntries = [];
+        $entries = [];
+        // Get all Harvest projects.
+        foreach ($project_ids as $id) {
+            // Get all time entries for each project.
+            $projectEntries = $this->harvestClient->getProjectEntries($id, $range)->get('data');
+            foreach ($projectEntries as $entry) {
+                $entries[] = $entry;
+            }
+            $symfonyStyle->progressAdvance();
+        }
+        $symfonyStyle->progressFinish();
+        return $timeEntries;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -140,22 +172,7 @@ class BackupCommand extends Command {
         $this->populateTaskMap();
 
         $project_ids = array_keys($this->projectMap);
-
-        // Retrieve data for projects.
-        $io->section(sprintf('Retrieving data for %d projects', count($project_ids)));
-        $io->progressStart(count($project_ids));
-        $time_entries = [];
-        $entries = [];
-        // Get all Harvest projects.
-        foreach ($project_ids as $id) {
-            // Get all time entries for each project.
-            $project_entries = $this->harvestClient->getProjectEntries($id, $range)->get('data');
-            foreach ($project_entries as $entry) {
-                $entries[] = $entry;
-            }
-            $io->progressAdvance();
-        }
-        $io->progressFinish();
+        $entries = $this->retrieveDataForProjects($io, $project_ids, $range);
 
         // Format and sort the time entries.
         $io->section(sprintf('Formatting and sorting %d time entries', count($entries)));
