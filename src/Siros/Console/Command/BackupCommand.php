@@ -38,14 +38,14 @@ class BackupCommand extends Command {
     protected function configure()
     {
         $this->setName('backup')
-            ->setDefinition([
-                new InputArgument('file',
-                    InputArgument::OPTIONAL,
-                    'Output file to write to.',
-                    'data.csv')
+          ->setDefinition([
+            new InputArgument('file',
+              InputArgument::OPTIONAL,
+              'Output file to write to.',
+              'data.csv')
 
-            ])
-            ->setDescription('Backup time entries from Harvest to a CSV.');
+          ])
+          ->setDescription('Backup time entries from Harvest to a CSV.');
     }
 
     /**
@@ -109,38 +109,6 @@ class BackupCommand extends Command {
         }
     }
 
-  /**
-   * Get an entry of time entries for a range.
-   *
-   * @param \Symfony\Component\Console\Style\SymfonyStyle $symfonyStyle
-   *   The SymfonyStyle component.
-   * @param array $projectIds
-   *  The project IDs to get data for.
-   * @param \Harvest\Model\Range $range
-   *   The date range.
-   *
-   * @return array
-   *   An array of time entries.
-   */
-    protected function retrieveDataForProjects(SymfonyStyle $symfonyStyle, array $projectIds, Range $range)
-    {
-        $symfonyStyle->section(sprintf('Retrieving data for %d projects', count($projectIds)));
-        $symfonyStyle->progressStart(count($projectIds));
-        $timeEntries = [];
-        $entries = [];
-        // Get all Harvest projects.
-        foreach ($projectIds as $id) {
-            // Get all time entries for each project.
-            $projectEntries = $this->harvestClient->getProjectEntries($id, $range)->get('data');
-            foreach ($projectEntries as $entry) {
-                $entries[] = $entry;
-            }
-            $symfonyStyle->progressAdvance();
-        }
-        $symfonyStyle->progressFinish();
-        return $timeEntries;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -172,7 +140,22 @@ class BackupCommand extends Command {
         $this->populateTaskMap();
 
         $project_ids = array_keys($this->projectMap);
-        $entries = $this->retrieveDataForProjects($io, $project_ids, $range);
+
+        // Retrieve data for projects.
+        $io->section(sprintf('Retrieving data for %d projects', count($project_ids)));
+        $io->progressStart(count($project_ids));
+        $time_entries = [];
+        $entries = [];
+        // Get all Harvest projects.
+        foreach ($project_ids as $id) {
+            // Get all time entries for each project.
+            $project_entries = $this->harvestClient->getProjectEntries($id, $range)->get('data');
+            foreach ($project_entries as $entry) {
+                $entries[] = $entry;
+            }
+            $io->progressAdvance();
+        }
+        $io->progressFinish();
 
         // Format and sort the time entries.
         $io->section(sprintf('Formatting and sorting %d time entries', count($entries)));
@@ -204,25 +187,26 @@ class BackupCommand extends Command {
      */
     protected function formatEntry($entry)
     {
-            return [
-                'Date' => $entry->get('spent-at'),
-                'Client' => $this->projectToClientMap[$entry->get('project-id')],
-                'Project' => $this->projectMap[$entry->get('project-id')]['name'],
-                'Task' => $this->taskMap[$entry->get('task-id')],
-                'Notes' => $entry->get('notes'),
-                'Hours' => $entry->get('hours'),
-                'Hours rounded' => ceil($entry->get('hours') * 4) / 4,
-                'First name' => $this->userMap[$entry->get('user-id')]['first_name'],
-                'Last name' => $this->userMap[$entry->get('user-id')]['last_name'],
-                'Created on' => $entry->get('created-at'),
-                'Updated on' => $entry->get('updated-at'),
-                'Harvest ID' => $entry->get('id'),
-                'Project ID' => $entry->get('project-id'),
-                'User ID' => $entry->get('user-id'),
-                'Project hourly rate' => $this->projectMap[$entry->get('project-id')]['hourly-rate'],
-                'Task ID' => $entry->get('task-id'),
-                'Client ID' => $this->projectMap[$entry->get('project-id')]['client-id'],
-            ];
+        return [
+          'Date' => $entry->get('spent-at'),
+          'Client' => $this->projectToClientMap[$entry->get('project-id')],
+          'Project' => $this->projectMap[$entry->get('project-id')]['name'],
+          'Task' => $this->taskMap[$entry->get('task-id')],
+          'Notes' => $entry->get('notes'),
+          'Hours' => $entry->get('hours'),
+          'Hours rounded' => ceil($entry->get('hours') * 4) / 4,
+          'First name' => $this->userMap[$entry->get('user-id')]['first_name'],
+          'Last name' => $this->userMap[$entry->get('user-id')]['last_name'],
+          'Created on' => $entry->get('created-at'),
+          'Updated on' => $entry->get('updated-at'),
+          'Harvest ID' => $entry->get('id'),
+          'Project ID' => $entry->get('project-id'),
+          'User ID' => $entry->get('user-id'),
+          'Project hourly rate' => $this->projectMap[$entry->get('project-id')]['hourly-rate'],
+          'Task ID' => $entry->get('task-id'),
+          'Client ID' => $this->projectMap[$entry->get('project-id')]['client-id'],
+        ];
     }
 
 }
+
