@@ -114,7 +114,7 @@ class BackupCommand extends Command {
    *
    * @param \Symfony\Component\Console\Style\SymfonyStyle $symfonyStyle
    *   The SymfonyStyle component.
-   * @param array $project_ids
+   * @param array $projectIds
    *  The project IDs to get data for.
    * @param \Harvest\Model\Range $range
    *   The date range.
@@ -122,14 +122,14 @@ class BackupCommand extends Command {
    * @return array
    *   An array of time entries.
    */
-    protected function retrieveDataForProjects(SymfonyStyle $symfonyStyle, array $project_ids, Range $range)
+    protected function retrieveDataForProjects(SymfonyStyle $symfonyStyle, array $projectIds, Range $range)
     {
-        $symfonyStyle->section(sprintf('Retrieving data for %d projects', count($project_ids)));
-        $symfonyStyle->progressStart(count($project_ids));
+        $symfonyStyle->section(sprintf('Retrieving data for %d projects', count($projectIds)));
+        $symfonyStyle->progressStart(count($projectIds));
         $timeEntries = [];
         $entries = [];
         // Get all Harvest projects.
-        foreach ($project_ids as $id) {
+        foreach ($projectIds as $id) {
             // Get all time entries for each project.
             $projectEntries = $this->harvestClient->getProjectEntries($id, $range)->get('data');
             foreach ($projectEntries as $entry) {
