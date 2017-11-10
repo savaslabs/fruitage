@@ -127,13 +127,12 @@ class BackupCommand extends Command {
         $symfonyStyle->section(sprintf('Retrieving data for %d projects', count($projectIds)));
         $symfonyStyle->progressStart(count($projectIds));
         $timeEntries = [];
-        $entries = [];
         // Get all Harvest projects.
         foreach ($projectIds as $id) {
             // Get all time entries for each project.
             $projectEntries = $this->harvestClient->getProjectEntries($id, $range)->get('data');
             foreach ($projectEntries as $entry) {
-                $entries[] = $entry;
+                $timeEntries[] = $entry;
             }
             $symfonyStyle->progressAdvance();
         }
