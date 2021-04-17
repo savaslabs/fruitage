@@ -218,11 +218,10 @@ class BackupCommand extends Command {
                 'Harvest ID' => $entry->get('id'),
                 'Project ID' => $entry->get('project-id'),
                 'User ID' => $entry->get('user-id'),
-                'Project hourly rate' => $this->projectMap[$entry->get('project-id')]['hourly-rate'],
+                'Billable Rate' => $entry->get('billable-rate'),
                 'Task ID' => $entry->get('task-id'),
                 'Client ID' => $this->projectMap[$entry->get('project-id')]['client-id'],
                 'Billable' => $entry->get('billable'),
-                'Entry Billable Rate' => $entry->get('billable-rate'),
             ];
     }
 
