@@ -221,6 +221,8 @@ class BackupCommand extends Command {
                 'Project hourly rate' => $this->projectMap[$entry->get('project-id')]['hourly-rate'],
                 'Task ID' => $entry->get('task-id'),
                 'Client ID' => $this->projectMap[$entry->get('project-id')]['client-id'],
+                'Billable' => $entry->get('billable'),
+                'Entry Billable Rate' => $entry->get('billable-rate'),
             ];
     }
 
