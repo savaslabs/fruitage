@@ -158,8 +158,9 @@ class BackupCommand extends Command {
 
         // Set up the date range for retrieving project entries.
         // From data is an arbitrary old date.
-        $to = Carbon::create()->format('Ymd');
-        $range = new Range('20100101', $to);
+        // Later adjust to a future date as sometimes people accidentally
+        // record future dates and we want to capture those.
+        $range = new Range('20100101', '20400101');
 
         $io->note('Populating project map.');
         $this->populateProjectMap();
